@@ -2387,6 +2387,22 @@ let vm_call_plugin = call
 	~allowed_roles:_R_VM_OP
 	()
 
+let vm_enable_pv_auto_update = call
+	~name:"enable_pv_auto_update"
+	~in_product_since:rel_cream
+	~doc:"Enable PV auto update on this vm"
+	~params:[Ref _vm, "vm", "The vm"]
+	~allowed_roles:_R_VM_OP
+	()
+
+let vm_disable_pv_auto_update = call
+	~name:"disable_pv_auto_update"
+	~in_product_since:rel_cream
+	~doc:"Disable PV auto update on this vm"
+	~params:[Ref _vm, "vm", "The vm"]
+	~allowed_roles:_R_VM_OP
+	()
+
 (* ------------------------------------------------------------------------------------------------------------
    Host Management
    ------------------------------------------------------------------------------------------------------------ *)
@@ -6848,7 +6864,7 @@ let vm_operations =
         vm_migrate_send;
 	    vm_get_boot_record; vm_send_sysrq; vm_send_trigger;
 		vm_query_services;vm_shutdown;
-		vm_call_plugin;
+		vm_call_plugin;vm_enable_pv_auto_update;vm_disable_pv_auto_update;
 	  ]
 	@ [ "changing_memory_live", "Changing the memory settings";
 	    "awaiting_memory_live", "Waiting for the memory settings to change";
@@ -6933,6 +6949,8 @@ let vm =
 		vm_set_appliance;
 		vm_query_services;
 		vm_call_plugin;
+		vm_enable_pv_auto_update;
+		vm_disable_pv_auto_update;
 		]
       ~contents:
       ([ uid _vm;

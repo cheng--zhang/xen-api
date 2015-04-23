@@ -250,3 +250,6 @@ val request_rdp_on : __context:Context.t -> vm:API.ref_VM -> unit
 val request_rdp_off: __context:Context.t -> vm:API.ref_VM -> unit
 
 val call_plugin : __context:Context.t -> vm:API.ref_VM -> plugin:string -> fn:string -> args:(string * string) list -> string
+
+val enable_pv_auto_update : __context:Context.t -> vm:API.ref_VM -> unit
+val disable_pv_auto_update : __context:Context.t -> vm:API.ref_VM -> unit

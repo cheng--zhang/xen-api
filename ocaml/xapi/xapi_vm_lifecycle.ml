@@ -42,6 +42,8 @@ let allowed_power_states ~__context ~vmr ~(op:API.vm_operations) =
 	| `make_into_template
 	| `provision
 	| `start
+	| `enable_pv_auto_update
+	| `disable_pv_auto_update
 	| `start_on
 	                                -> [`Halted]
 	| `unpause

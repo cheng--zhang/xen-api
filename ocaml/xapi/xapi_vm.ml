@@ -962,3 +962,25 @@ let import_convert ~__context ~_type ~username ~password ~sr ~remote_config =
 
 let query_services ~__context ~self =
 	raise (Api_errors.Server_error(Api_errors.not_implemented, [ "query_services" ]))
+
+let update_pci_pv ~__context ~vm ~value=	
+	let vm_gm = Db.VM.get_guest_metrics ~__context ~self:vm in
+	let network_optimized = try Db.VM_guest_metrics.get_network_paths_optimized ~__context ~self:vm_gm with _ -> false in
+	let storage_optimized = try Db.VM_guest_metrics.get_storage_paths_optimized ~__context ~self:vm_gm with _ -> false in
+	if storage_optimized || network_optimized
+	then
+		raise (Api_errors.Server_error(Api_errors.operation_not_allowed, [ "Operation is not allowed" ]));
+
+	let platform = Db.VM.get_platform ~__context ~self:vm in	
+	info "Updating VM %s platform:%s <- %s" (Ref.string_of vm) Xapi_globs.pci_pv_key_name value;
+	if List.mem_assoc Xapi_globs.pci_pv_key_name platform then
+		(try
+			Db.VM.remove_from_platform ~__context ~self:vm ~key:Xapi_globs.pci_pv_key_name
+		with _ -> ());
+	Db.VM.add_to_platform ~__context ~self:vm ~key:Xapi_globs.pci_pv_key_name ~value:value
+
+let enable_pv_auto_update ~__context ~vm =
+	update_pci_pv ~__context ~vm ~value:"true"
+
+let disable_pv_auto_update ~__context ~vm =
+	update_pci_pv ~__context ~vm ~value:"false"

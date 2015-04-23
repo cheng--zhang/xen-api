@@ -1973,6 +1973,16 @@ let vm_call_plugin printer rpc session_id params =
 	let result = Client.VM.call_plugin rpc session_id vm plugin fn args in
 	printer (Cli_printer.PList [ result ])
 
+let vm_enable_pv_auto_update printer rpc session_id params =
+	let vm_uuid = List.assoc "uuid" params in
+	let vm = Client.VM.get_by_uuid rpc session_id vm_uuid in
+	Client.VM.enable_pv_auto_update rpc session_id vm
+	
+let vm_disable_pv_auto_update printer rpc session_id params =
+	let vm_uuid = List.assoc "uuid" params in
+	let vm = Client.VM.get_by_uuid rpc session_id vm_uuid in
+	Client.VM.disable_pv_auto_update rpc session_id vm
+	
 let data_source_to_kvs ds =
 	["name_label",ds.API.data_source_name_label;
 	"name_description",ds.API.data_source_name_description;

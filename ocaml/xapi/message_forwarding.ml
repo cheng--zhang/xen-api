@@ -1314,6 +1314,27 @@ module Forward = functor(Local: Custom_actions.CUSTOM_ACTIONS) -> struct
 				(fun () ->
 					forward_vm_op ~local_fn ~__context ~vm (fun session_id rpc -> Client.VM.call_plugin rpc session_id vm plugin fn args))
 
+		let is_vm_halted ~__context ~vm = 
+			let power_state = Db.VM.get_power_state ~__context ~self:vm in
+			if power_state <> `Halted
+			then raise (Api_errors.Server_error(Api_errors.vm_bad_power_state, [Ref.string_of vm; Record_util.power_to_string `Halted; Record_util.power_to_string power_state]))
+			
+		let enable_pv_auto_update ~__context ~vm =
+			info "VM.enable_pv_auto_update: VM = '%s'" (vm_uuid ~__context vm);
+			is_vm_halted ~__context ~vm;
+			let local_fn = Local.VM.enable_pv_auto_update ~vm in
+			with_vm_operation ~__context ~self:vm ~doc:"VM.enable_pv_auto_update" ~op:`enable_pv_auto_update
+				(fun () ->
+					forward_to_access_srs ~local_fn ~__context ~vm (fun session_id rpc -> Client.VM.enable_pv_auto_update rpc session_id vm))
+
+		let disable_pv_auto_update ~__context ~vm =
+			info "VM.disable_pv_auto_update: VM = '%s'" (vm_uuid ~__context vm);
+			is_vm_halted ~__context ~vm;
+			let local_fn = Local.VM.disable_pv_auto_update ~vm in
+			with_vm_operation ~__context ~self:vm ~doc:"VM.disable_pv_auto_update" ~op:`disable_pv_auto_update
+				(fun () ->
+					forward_to_access_srs ~local_fn ~__context ~vm (fun session_id rpc -> Client.VM.disable_pv_auto_update rpc session_id vm))
+
 		let set_xenstore_data ~__context ~self ~value =
 			info "VM.set_xenstore_data: VM = '%s'" (vm_uuid ~__context self);
 			Db.VM.set_xenstore_data ~__context ~self ~value;
